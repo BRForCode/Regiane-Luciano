@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nossa Lista de Casamento 💍 | Regiane & Luciano</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root { 
+      /* Paleta Off-white e Pastel */
+      --cor-principal: #BFAEA4; /* Nude/Areia Pastel (elegante para botões e títulos) */
+      --cor-verde: #A8C3A6;     /* Verde Pastel */
+      --cor-fundo: #FCFBF8;     /* Off-white cremoso */
+      --cor-texto: #59534F;     /* Marrom acinzentado suave para o texto */
+    }
+    
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes floatHeart { 0% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(-100vh) scale(1.5); opacity: 0; } }
+    @keyframes scrollLateral { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+    body { font-family: 'Montserrat', sans-serif; background-color: var(--cor-fundo); margin: 0; padding: 0; color: var(--cor-texto); overflow-x: hidden; }
+    
+    /* Efeito de Blur no conteúdo de fundo */
+    #conteudo-principal { transition: filter 0.3s ease; padding: 20px 0; }
+    .blur { filter: blur(8px); pointer-events: none; }
+
+    header { text-align: center; margin-bottom: 30px; padding: 0 15px; }
+    .titulo-lista { font-size: 1.1rem; color: var(--cor-principal); margin: 0; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+    .nomes-casal { font-size: 1.8rem; color: var(--cor-principal); margin: 5px 0; font-weight: 700; white-space: nowrap; display: block; }
+    .subtitulo { margin: 15px auto; color: #777; font-size: 0.95rem; max-width: 700px; line-height: 1.6; }
+    
+    /* Grid de Presentes */
+    .grid-presentes { display: grid; gap: 15px; max-width: 1400px; margin: 0 auto; padding: 0 15px; }
+    @media (max-width: 600px) {
+      .grid-presentes { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+      .nomes-casal { font-size: 1.3rem; }
+    }
+    @media (min-width: 1025px) { .grid-presentes { grid-template-columns: repeat(6, 1fr); } }
+
+    /* --- ESTILO DOS CARDS --- */
+    .card { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.04); display: flex; flex-direction: column; transition: 0.3s; animation: fadeInUp 0.6s ease backwards; position: relative; border: 1px solid #F0ECE1; }
+    .card-img-container { width: 100%; padding-top: 100%; position: relative; background: #fdfdfd; overflow: hidden; }
+    .card img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
+    .card-info { padding: 15px 10px; text-align: center; display: flex; flex-direction: column; gap: 10px; flex-grow: 1; }
+    h3 { margin: 0; font-size: 0.95rem; font-weight: 600; color: var(--cor-texto); min-height: 2.4em; display: flex; align-items: center; justify-content: center; line-height: 1.2; }
+    .btn-presentear { background: var(--cor-principal); color: white; border: none; padding: 10px; width: 100%; border-radius: 20px; cursor: pointer; font-weight: 600; margin-top: auto; transition: 0.2s; }
+    .btn-presentear:hover { filter: brightness(0.95); }
+
+    /* --- AJUSTES PARA ITENS ESGOTADOS --- */
+    .card.esgotado img { filter: grayscale(100%); opacity: 0.6; } 
+    .card.esgotado .card-img-container::after {
+      content: "";
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(255, 255, 255, 0.4); 
+      z-index: 1;
+    }
+    .card.esgotado .btn-presentear { background: #E0DDD5 !important; color: #999 !important; cursor: not-allowed; }
+
+    /* Modal e Overlay */
+    #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); display: none; align-items: center; justify-content: center; z-index: 9999; padding: 20px; box-sizing: border-box; }
+    .modal { background: white; width: 100%; max-width: 400px; border-radius: 20px; padding: 30px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.1); animation: fadeInUp 0.4s ease; border: 1px solid #F0ECE1; }
+    .modal img { width: 120px; height: 120px; object-fit: cover; border-radius: 15px; margin-bottom: 15px; border: 2px solid var(--cor-fundo); }
+    .modal h2 { font-size: 1.2rem; color: var(--cor-texto); margin-bottom: 10px; }
+    .modal p { color: #777; font-size: 0.9rem; line-height: 1.5; margin-bottom: 20px; }
+    .modal-btns { display: flex; flex-direction: column; gap: 10px; }
+    .btn-confirmar { background: var(--cor-principal); color: white; border: none; padding: 12px; border-radius: 25px; cursor: pointer; font-weight: 700; font-size: 1rem; }
+    .btn-cancelar { background: #F0ECE1; color: var(--cor-texto); border: none; padding: 12px; border-radius: 25px; cursor: pointer; font-weight: 600; }
+    .input-msg { width: 100%; padding: 12px; border: 1px solid #EAE6D7; border-radius: 10px; font-family: inherit; margin-bottom: 15px; box-sizing: border-box; background: #FAFAFA;}
+
+    /* Seção Pix e Mural */
+    .pix-section { max-width: 500px; margin: 60px auto; text-align: center; padding: 30px 20px; background: white; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid #F0ECE1; }
+    .pix-chave { background: #FAFAFA; padding: 12px; border: 1px dashed var(--cor-principal); border-radius: 8px; margin: 15px 0; font-size: 0.9rem; color: #666; word-break: break-all; }
+    .btn-pix { background: var(--cor-principal); color: white; border: none; padding: 12px; border-radius: 25px; cursor: pointer; font-weight: 700; width: 100%; }
+    .mural-wrapper { margin: 60px 0; position: relative; width: 100%; background: white; padding: 30px 0; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.02); border-top: 1px solid #F0ECE1; border-bottom: 1px solid #F0ECE1; }
+    .marquee-content { display: flex; width: max-content; animation: scrollLateral 10s linear infinite; }
+    .msg-item { padding: 0 50px; font-style: italic; font-size: 1.1rem; color: #777; }
+    
+    footer { padding: 40px; text-align: center; border-top: 1px solid #F0ECE1; background: #fff; color: #999; font-size: 0.9rem; }
+    .heart-animation { position: fixed; font-size: 2rem; color: #e74c3c; pointer-events: none; z-index: 10000; animation: floatHeart 2.5s linear forwards; }
+  </style>
+</head>
+<body>
+
+  <div id="overlay">
+    <div class="modal" id="modal-conteudo"></div>
+  </div>
+
+  <div id="conteudo-principal">
+    <header>
+      <h1 class="titulo-lista">Nossa Lista de Casamento</h1>
+      <span class="nomes-casal">Regiane e Luciano 💍</span>
+      <p class="subtitulo">O maior presente é a sua presença no nosso grande dia. Mas, se desejar nos presentear, criamos esta lista com itens escolhidos com amor para o nosso novo lar. Fique à vontade para escolher qualquer um dos itens ou, se preferir, nos presentear com algo de sua escolha, que será recebido com o mesmo carinho e gratidão. ❤️</p>
+    </header>
+
+    <div class="grid-presentes" id="lista"></div>
+
+    <div class="pix-section">
+      <h2 style="color: var(--cor-principal); font-size: 1.3rem;">Presenteie qualquer valor em dinheiro (PIX)</h2>
+      <p style="font-size: 0.85rem; color: #777;">Toque no botão abaixo para copiar nossa chave:</p>
+      <div class="pix-chave" id="chave-pix">Carregando chave...</div>
+      <button class="btn-pix" onclick="copiarPix()">Copiar Chave PIX</button>
+    </div>
+
+    <div class="mural-wrapper">
+      <h2 style="text-align: center; color: var(--cor-principal); font-size: 1.2rem; margin-bottom: 20px;">Mensagens de Carinho ❤️</h2>
+      <div class="marquee-content" id="mural-track"></div>
+    </div>
+
+    <footer>
+        <p>Regiane & Luciano | 17 de Outubro de 2026</p>
+    </footer>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+  <script>
+    // IMPORTANTE: Insira aqui as chaves do NOVO projeto do Firebase para não misturar os dados!
+    var firebaseConfig = {
+      apiKey: "COLE_AQUI_A_NOVA_API_KEY",
+      authDomain: "COLE_AQUI_O_NOVO_AUTH_DOMAIN",
+      projectId: "COLE_AQUI_O_NOVO_PROJECT_ID"
+    };
+    firebase.initializeApp(firebaseConfig);
+    var db = firebase.firestore();
+
+    db.collection("config").doc("pix").onSnapshot(function(doc) {
+      if (doc.exists) document.getElementById("chave-pix").innerText = doc.data().chave;
+    });
+
+    db.collection("presentes").onSnapshot(function(snapshot) {
+      var listaDiv = document.getElementById("lista");
+      listaDiv.innerHTML = "";
+      snapshot.forEach(function(doc) {
+        var p = doc.data(), id = doc.id;
+        var esgotado = (p.recebidos || 0) >= (p.total || 1);
+        var card = document.createElement("div");
+        card.className = "card" + (esgotado ? " esgotado" : "");
+        card.innerHTML = '<div class="card-img-container"><img src="' + p.imagem + '"></div>' +
+          '<div class="card-info"><h3>' + p.nome + '</h3>' +
+          '<button class="btn-presentear" ' + (esgotado ? "disabled" : "") + ' onclick="abrirConfirmacao(\'' + id + '\', \'' + p.nome + '\', \'' + p.imagem + '\')">' +
+          (esgotado ? "Esgotado" : "Escolher") + '</button></div>';
+        listaDiv.appendChild(card);
+      });
+    });
+
+    db.collection("mensagens").orderBy("timestamp", "desc").onSnapshot(function(snapshot) {
+      var track = document.getElementById("mural-track");
+      if (snapshot.empty) return;
+      var content = "";
+      snapshot.forEach(function(doc) { content += '<div class="msg-item">"' + doc.data().texto + '"</div>'; });
+      track.innerHTML = content + content;
+    });
+
+    var itemSelecionadoId = null;
+
+    function abrirConfirmacao(id, nome, imagem) {
+      itemSelecionadoId = id;
+      var modal = document.getElementById("modal-conteudo");
+      document.getElementById("conteudo-principal").classList.add("blur");
+      document.getElementById("overlay").style.display = "flex";
+
+      modal.innerHTML = 
+        '<img src="' + imagem + '">' +
+        '<h2>Deseja confirmar o presente?</h2>' +
+        '<p>Você escolheu presentear Regiane e Luciano com: <strong>' + nome + '</strong></p>' +
+        '<div class="modal-btns">' +
+          '<button class="btn-confirmar" onclick="confirmarPresente()">Sim, desejo presentear</button>' +
+          '<button class="btn-cancelar" onclick="fecharModal()">Agora não</button>' +
+        '</div>';
+    }
+
+    // Corações agora aparecem somente quando o modal fecha
+    function fecharModal() {
+      document.getElementById("overlay").style.display = "none";
+      document.getElementById("conteudo-principal").classList.remove("blur");
+      itemSelecionadoId = null;
+      chuvaDeCoracoes(); 
+    }
+
+    function confirmarPresente() {
+      var modal = document.getElementById("modal-conteudo");
+      modal.innerHTML = 
+        '<h2>Muito obrigado! ❤️</h2>' +
+        '<p>Deseja deixar uma mensagem curta de carinho no nosso mural?</p>' +
+        '<input type="text" id="inputMsg" class="input-msg" placeholder="Sua mensagem aqui..." autofocus>' +
+        '<div class="modal-btns">' +
+          '<button class="btn-confirmar" onclick="finalizarProcesso()">Enviar e Concluir</button>' +
+          '<button class="btn-cancelar" onclick="finalizarSemMensagem()">Concluir sem mensagem</button>' +
+        '</div>';
+    }
+
+    function finalizarProcesso() {
+      var msg = document.getElementById("inputMsg").value;
+      if(msg) {
+        db.collection("mensagens").add({ nome: "Convidado", texto: msg, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+      }
+      concluirAcao();
+    }
+
+    function finalizarSemMensagem() { concluirAcao(); }
+
+    function concluirAcao() {
+      if(itemSelecionadoId) {
+        db.collection("presentes").doc(itemSelecionadoId).update({ recebidos: firebase.firestore.FieldValue.increment(1) });
+      }
+      fecharModal();
+    }
+
+    function copiarPix() {
+      var chave = document.getElementById("chave-pix").innerText;
+      navigator.clipboard.writeText(chave).then(function() {
+        var btn = document.querySelector(".btn-pix");
+        btn.innerText = "Copiado! ❤️";
+        
+        setTimeout(function() {
+          itemSelecionadoId = null;
+          document.getElementById("conteudo-principal").classList.add("blur");
+          document.getElementById("overlay").style.display = "flex";
+          confirmarPresente(); 
+          btn.innerText = "Copiar Chave PIX";
+        }, 800);
+      });
+    }
+
+    function chuvaDeCoracoes() {
+      for (let i = 0; i < 25; i++) {
+        var heart = document.createElement('div');
+        heart.innerHTML = '❤️';
+        heart.className = 'heart-animation';
+        heart.style.left = Math.random() * 100 + 'vw';
+        heart.style.top = '100vh';
+        heart.style.animationDelay = Math.random() * 1 + 's';
+        document.body.appendChild(heart);
+        setTimeout(function() { heart.remove(); }, 3000);
+      }
+    }
+  </script>
+</body>
+</html>

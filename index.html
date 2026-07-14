@@ -74,7 +74,9 @@
     .pix-chave { background: #FAFAFA; padding: 12px; border: 1px dashed var(--cor-principal); border-radius: 8px; margin: 15px 0; font-size: 0.9rem; color: #666; word-break: break-all; }
     .btn-pix { background: var(--cor-principal); color: white; border: none; padding: 12px; border-radius: 25px; cursor: pointer; font-weight: 700; width: 100%; }
     .mural-wrapper { margin: 60px 0; position: relative; width: 100%; background: white; padding: 30px 0; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.02); border-top: 1px solid #F0ECE1; border-bottom: 1px solid #F0ECE1; }
-    .marquee-content { display: flex; width: max-content; animation: scrollLateral 10s linear infinite; }
+    
+    /* Animação com fallback de 20s (será reescrito pelo JavaScript) */
+    .marquee-content { display: flex; width: max-content; animation: scrollLateral 20s linear infinite; }
     .msg-item { padding: 0 50px; font-style: italic; font-size: 1.1rem; color: #777; }
     
     footer { padding: 40px; text-align: center; border-top: 1px solid #F0ECE1; background: #fff; color: #999; font-size: 0.9rem; }
@@ -153,7 +155,23 @@
       if (snapshot.empty) return;
       var content = "";
       snapshot.forEach(function(doc) { content += '<div class="msg-item">"' + doc.data().texto + '"</div>'; });
+      
+      // Duplicamos o conteúdo para o efeito de rolagem infinita
       track.innerHTML = content + content;
+
+      // --- NOVA LÓGICA DE VELOCIDADE INTELIGENTE ---
+      // Aguardamos um instante para o navegador renderizar os textos e saber a largura
+      setTimeout(function() {
+        var distancia = track.scrollWidth / 2; // O quanto a fita anda
+        var velocidadePixelsPorSegundo = 45;   // Ajuste este número se quiser mais rápido ou mais devagar (menor = mais lento)
+        var tempoNecessario = distancia / velocidadePixelsPorSegundo;
+        
+        // Colocamos um tempo mínimo de 15 segundos para não ficar muito rápido se tiver só 1 mensagem
+        if (tempoNecessario < 15) tempoNecessario = 15;
+        
+        // Aplica o tempo exato para manter a mesma velocidade de leitura sempre
+        track.style.animationDuration = tempoNecessario + "s";
+      }, 200);
     });
 
     var itemSelecionadoId = null;

@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Painel de Convidados - Regiane e Luciano</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { 
+            /* Paleta Off-white e Pastel */
+            --primary: #6D6861;   /* Fendi/Taupe para garantir leitura do texto */
+            --noivo: #9EB9D4;     /* Azul Pastel */
+            --noiva: #E09891;     /* Coral/Vermelho Pastel */
+            --whatsapp: #A8C3A6;  /* Verde Pastel */
+            --bg: #FAFAFA;        /* Off-white */
+        }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); margin: 0; padding: 0; }
+        .admin-container { width: 100%; max-width: 600px; margin: 0 auto; padding: 10px; box-sizing: border-box; }
+
+        /* Login */
+        #login-screen { background: white; padding: 40px 20px; border-radius: 15px; text-align: center; margin: 50px 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #EAE6D7; }
+        #login-screen input { width: 100%; padding: 12px; margin: 15px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
+        #login-screen button { background: var(--primary); color: white; border: none; padding: 12px; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; }
+
+        /* Cabeçalho */
+        header { background: var(--primary); color: white; padding: 15px; border-radius: 12px; text-align: center; margin-bottom: 10px; }
+        header h1 { font-size: 18px; margin: 0; }
+
+        /* Dashboard Geral */
+        .stats-bar { display: flex; gap: 8px; margin-bottom: 10px; }
+        .stat-card { background: white; flex: 1; padding: 12px; border-radius: 10px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.03); border: 1px solid #eee; }
+        .stat-card b { display: block; font-size: 18px; color: var(--primary); }
+        .stat-card span { font-size: 10px; color: #666; text-transform: uppercase; }
+
+        /* Contadores Específicos */
+        .stats-lado-mini { display: flex; gap: 8px; margin-bottom: 15px; }
+        .card-mini { background: #FAFAFA; border: 1px solid #eee; flex: 1; padding: 10px; border-radius: 8px; text-align: center; }
+        .card-mini b { display: block; font-size: 16px; color: var(--primary); }
+        .card-mini span { font-size: 9px; color: #888; text-transform: uppercase; font-weight: bold; }
+
+        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .menu-card { background: white; padding: 20px 10px; border-radius: 10px; text-align: center; cursor: pointer; border-bottom: 4px solid #ddd; }
+        .card-luciano { border-color: var(--noivo); color: var(--primary); }
+        .card-regiane { border-color: var(--noiva); color: var(--primary); }
+
+        /* View Lista */
+        #view-lista { display: none; background: white; border-radius: 12px; padding: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.03); border: 1px solid #eee; }
+        .view-header { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; color: var(--primary); }
+        .btn-voltar { background: #EAE6D7; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; color: var(--primary); font-weight: bold; }
+        
+        .tools-bar { display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; }
+        .search-box { position: relative; }
+        .search-box i { position: absolute; left: 10px; top: 12px; color: #999; }
+        .search-box input { width: 100%; padding: 10px 10px 10px 32px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+
+        .add-form { background: #FAFAFA; padding: 10px; border-radius: 8px; display: flex; flex-direction: column; gap: 8px; border: 1px solid #eee; }
+        .add-form input, .add-form select { padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; background: white; }
+        .btn-add { background: var(--whatsapp); color: white; border: none; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+
+        /* Itens da Lista */
+        .guest-row { display: flex; align-items: center; padding: 15px 0; border-bottom: 1px solid #f0f0f0; gap: 10px; }
+        .guest-info { flex: 1; min-width: 0; }
+        .guest-name { font-weight: bold; font-size: 14px; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--primary); }
+        .guest-details { display: flex; gap: 10px; align-items: center; margin-top: 5px; }
+        .limit-badge { background: #eee; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; color: #666; }
+        .btn-wa { color: var(--whatsapp); text-decoration: none; font-size: 12px; font-weight: bold; }
+
+        .select-confirm { 
+            padding: 10px; border-radius: 8px; border: 1px solid #ccc; background: white; 
+            font-weight: bold; font-size: 13px; min-width: 120px;
+        }
+        .select-sim { border-color: #A8C3A6; color: #729670; background: #eafaf1; }
+        .select-nao { border-color: #E09891; color: #c4766e; background: #fdecea; }
+    </style>
+</head>
+<body>
+
+<div class="admin-container">
+    <div id="login-screen">
+        <i class="fas fa-lock" style="font-size: 30px; color: var(--primary);"></i>
+        <h2>Painel Noivos</h2>
+        <input type="password" id="input-senha" placeholder="Senha">
+        <button id="btn-login">ACESSAR</button>
+    </div>
+
+    <div id="main-app" style="display:none;">
+        <header>
+            <h1><i class="fas fa-heart"></i> Controle de Convidados</h1>
+        </header>
+
+        <div id="view-dashboard">
+            <div class="stats-bar">
+                <div class="stat-card"><span>Total de Convidados</span><b id="total-geral">0</b></div>
+                <div class="stat-card"><span>Presenças Confirmadas</span><b id="conf-geral">0</b></div>
+            </div>
+            <div class="menu-grid">
+                <div class="menu-card card-luciano" id="menu-luciano"><i class="fas fa-user-tie"></i><h3>Luciano</h3></div>
+                <div class="menu-card card-regiane" id="menu-regiane"><i class="fas fa-user-nurse"></i><h3>Regiane</h3></div>
+            </div>
+        </div>
+
+        <div id="view-lista">
+            <div class="view-header">
+                <button class="btn-voltar" id="btn-voltar"><i class="fas fa-arrow-left"></i></button>
+                <h3 id="titulo-lista">Lista</h3>
+            </div>
+
+            <div class="stats-lado-mini">
+                <div class="card-mini">
+                    <span id="label-total-lado">Total</span>
+                    <b id="mini-total-lado">0</b>
+                </div>
+                <div class="card-mini">
+                    <span>Confirmados</span>
+                    <b id="mini-conf-lado">0</b>
+                </div>
+            </div>
+
+            <div class="tools-bar">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="input-busca" placeholder="Buscar por nome ou telefone...">
+                </div>
+                <div class="add-form">
+                    <input type="text" id="novo-nome" placeholder="Nome do Responsável">
+                    <input type="text" id="novo-contato" placeholder="Tel ou Responsável (Opcional)">
+                    <label style="font-size: 10px; color: #666; font-weight: bold;">LIMITE DE PESSOAS:</label>
+                    <select id="novo-limite">
+                        <option value="1">1 Pessoa</option><option value="2">2 Pessoas</option>
+                        <option value="3">3 Pessoas</option><option value="4">4 Pessoas</option>
+                        <option value="5">5 Pessoas</option><option value="6">6 Pessoas</option>
+                        <option value="7">7 Pessoas</option><option value="8">8 Pessoas</option>
+                        <option value="9">9 Pessoas</option><option value="10">10 Pessoas</option>
+                        <option value="11">11 Pessoas</option><option value="12">12 Pessoas</option>
+                        <option value="13">13 Pessoas</option><option value="14">14 Pessoas</option>
+                        <option value="15">15 Pessoas</option>
+                    </select>
+                    <button class="btn-add" id="btn-salvar">Adicionar</button>
+                </div>
+            </div>
+
+            <div id="lista-corpo"></div>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+    import { getFirestore, collection, getDocs, doc, updateDoc, addDoc, query, where } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
+
+    // IMPORTANTE: Insira aqui as chaves do NOVO projeto do Firebase!
+    const firebaseConfig = {
+        apiKey: "COLE_AQUI_A_NOVA_API_KEY",
+        authDomain: "COLE_AQUI_O_NOVO_AUTH_DOMAIN",
+        projectId: "COLE_AQUI_O_NOVO_PROJECT_ID",
+        storageBucket: "COLE_AQUI_O_NOVO_STORAGE_BUCKET",
+        messagingSenderId: "COLE_AQUI_O_NOVO_MESSAGING_SENDER_ID",
+        appId: "COLE_AQUI_O_NOVO_APP_ID"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    let ladoAtivo = "";
+    let baseDados = [];
+
+    document.getElementById('btn-login').onclick = function() {
+        // A senha foi alterada para 1710
+        if(document.getElementById('input-senha').value === "1710") {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('main-app').style.display = 'block';
+            atualizarResumo();
+        } else { alert("Senha incorreta!"); }
+    };
+
+    function abrirAba(lado) {
+        ladoAtivo = lado;
+        document.getElementById('view-dashboard').style.display = 'none';
+        document.getElementById('view-lista').style.display = 'block';
+        document.getElementById('titulo-lista').innerText = "Convidados de " + lado;
+        document.getElementById('label-total-lado').innerText = "Total de " + lado;
+        carregarLista();
+    }
+
+    document.getElementById('btn-voltar').onclick = function() {
+        document.getElementById('view-lista').style.display = 'none';
+        document.getElementById('view-dashboard').style.display = 'block';
+        atualizarResumo();
+    };
+
+    // Ações para os botões do Luciano e Regiane
+    document.getElementById('menu-luciano').onclick = () => abrirAba('Luciano');
+    document.getElementById('menu-regiane').onclick = () => abrirAba('Regiane');
+
+    async function carregarLista() {
+        const q = query(collection(db, "convidados"), where("lado", "==", ladoAtivo));
+        const snap = await getDocs(q);
+        baseDados = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderizar();
+    }
+
+    document.getElementById('input-busca').oninput = () => renderizar();
+
+    function renderizar() {
+        const termo = document.getElementById('input-busca').value.toLowerCase();
+        
+        const filtrados = baseDados.filter(c => {
+            const bateNome = (c.nome || "").toLowerCase().includes(termo);
+            const bateTelefone = (String(c.telefone) || "").toLowerCase().includes(termo);
+            return bateNome || bateTelefone;
+        });
+        
+        let somaTotalLado = 0;
+        let somaConfLado = 0;
+        
+        filtrados.forEach(c => {
+            somaTotalLado += (c.maxConvidados || 0);
+            if(typeof c.confirmados === 'number') somaConfLado += c.confirmados;
+        });
+        
+        document.getElementById('mini-total-lado').innerText = somaTotalLado;
+        document.getElementById('mini-conf-lado').innerText = somaConfLado;
+
+        const corpo = document.getElementById('lista-corpo');
+        corpo.innerHTML = "";
+        
+        filtrados.sort((a,b) => a.nome.localeCompare(b.nome)).forEach(c => {
+            const num = String(c.telefone || "").replace(/\D/g, '');
+            
+            var textoBase = "Olá, gostaria de confirmar sua presença";
+            if (c.maxConvidados > 1) {
+                textoBase += " e sua família";
+            }
+            // Mensagem atualizada
+            textoBase += " no casamento da Regiane e Luciano";
+            
+            const linkWa = "https://wa.me/55" + num + "?text=" + encodeURIComponent(textoBase);
+            
+            let contatoUI = "";
+            if (num.length >= 10) {
+                contatoUI = '<a href="' + linkWa + '" target="_blank" class="btn-wa">WhatsApp</a>';
+            } else if (c.telefone && String(c.telefone).trim() !== "") {
+                contatoUI = '<span class="limit-badge">' + c.telefone + '</span>';
+            } else {
+                contatoUI = '<span style="font-size: 10px; color: #ccc;">Sem contato</span>';
+            }
+
+            let selectHTML = '<select class="select-confirm" id="sel-' + c.id + '">';
+            selectHTML += '<option value="0">Pendente</option>';
+            for(let i=1; i <= (c.maxConvidados || 1); i++) {
+                let selected = (c.confirmados == i) ? 'selected' : '';
+                selectHTML += '<option value="' + i + '" ' + selected + '>Confirmado ' + i + '</option>';
+            }
+            selectHTML += '<option value="recusado" ' + (c.confirmados === "recusado" ? 'selected' : '') + '>Não irá</option>';
+            selectHTML += '</select>';
+
+            const div = document.createElement('div');
+            div.className = "guest-row";
+            div.innerHTML = '<div class="guest-info">' +
+                '<span class="guest-name">' + c.nome + '</span>' +
+                '<div class="guest-details">' +
+                '<span class="limit-badge">Capacidade: ' + (c.maxConvidados || 1) + '</span>' +
+                contatoUI + '</div></div>' + selectHTML;
+
+            corpo.appendChild(div);
+            
+            const sel = document.getElementById('sel-' + c.id);
+            if(c.confirmados > 0) sel.classList.add('select-sim');
+            if(c.confirmados === 'recusado') sel.classList.add('select-nao');
+
+            sel.onchange = (e) => salvarQuantidade(c.id, e.target.value);
+        });
+    }
+
+    async function salvarQuantidade(id, valor) {
+        let confirmados = (valor === "recusado") ? "recusado" : parseInt(valor);
+        await updateDoc(doc(db, "convidados", id), { confirmados: confirmados });
+        carregarLista();
+    }
+
+    document.getElementById('btn-salvar').onclick = async function() {
+        const n = document.getElementById('novo-nome').value;
+        const t = document.getElementById('novo-contato').value || "";
+        const l = parseInt(document.getElementById('novo-limite').value);
+        
+        if(!n) return alert("Preencha ao menos o Nome do Responsável");
+        
+        await addDoc(collection(db, "convidados"), { 
+            nome: n, 
+            telefone: t, 
+            lado: ladoAtivo, 
+            maxConvidados: l, 
+            confirmados: 0 
+        });
+        
+        document.getElementById('novo-nome').value = "";
+        document.getElementById('novo-contato').value = "";
+        document.getElementById('novo-limite').value = 1;
+        carregarLista();
+    };
+
+    async function atualizarResumo() {
+        const snap = await getDocs(collection(db, "convidados"));
+        let totalPessoas = 0;
+        let confirmadosTotal = 0;
+        
+        snap.forEach(doc => {
+            const data = doc.data();
+            totalPessoas += (data.maxConvidados || 0);
+            if(data.confirmados && data.confirmados !== "recusado") {
+                confirmadosTotal += data.confirmados;
+            }
+        });
+        
+        document.getElementById('total-geral').innerText = totalPessoas;
+        document.getElementById('conf-geral').innerText = confirmadosTotal;
+    }
+</script>
+</body>
+</html>

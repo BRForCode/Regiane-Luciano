@@ -8,11 +8,11 @@
     <style>
         :root { 
             /* Paleta Off-white e Pastel */
-            --primary: #6D6861;   /* Fendi/Taupe para garantir leitura do texto */
-            --noivo: #9EB9D4;     /* Azul Pastel */
-            --noiva: #E09891;     /* Coral/Vermelho Pastel */
-            --whatsapp: #A8C3A6;  /* Verde Pastel */
-            --bg: #FAFAFA;        /* Off-white */
+            --primary: #6D6861;   
+            --noivo: #9EB9D4;     
+            --noiva: #E09891;     
+            --whatsapp: #A8C3A6;  
+            --bg: #FAFAFA;        
         }
         body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); margin: 0; padding: 0; }
         .admin-container { width: 100%; max-width: 600px; margin: 0 auto; padding: 10px; box-sizing: border-box; }
@@ -144,27 +144,27 @@
     </div>
 </div>
 
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
-    import { getFirestore, collection, getDocs, doc, updateDoc, addDoc, query, where } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
-    // IMPORTANTE: Insira aqui as chaves do NOVO projeto do Firebase!
-    const firebaseConfig = {
-        apiKey: "COLE_AQUI_A_NOVA_API_KEY",
-        authDomain: "COLE_AQUI_O_NOVO_AUTH_DOMAIN",
-        projectId: "COLE_AQUI_O_NOVO_PROJECT_ID",
-        storageBucket: "COLE_AQUI_O_NOVO_STORAGE_BUCKET",
-        messagingSenderId: "COLE_AQUI_O_NOVO_MESSAGING_SENDER_ID",
-        appId: "COLE_AQUI_O_NOVO_APP_ID"
+<script>
+    // Suas credenciais reais inseridas aqui
+    var firebaseConfig = {
+        apiKey: "AIzaSyDA5leE6YB7HjWaBiCIyg3gkRBrVMjRQFs",
+        authDomain: "casamento-regiane-luciano.firebaseapp.com",
+        projectId: "casamento-regiane-luciano",
+        storageBucket: "casamento-regiane-luciano.firebasestorage.app",
+        messagingSenderId: "988178992982",
+        appId: "1:988178992982:web:6d841b744fd11a585c50f7"
     };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+    firebase.initializeApp(firebaseConfig);
+    var db = firebase.firestore();
+
     let ladoAtivo = "";
     let baseDados = [];
 
     document.getElementById('btn-login').onclick = function() {
-        // A senha foi alterada para 1710
         if(document.getElementById('input-senha').value === "1710") {
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('main-app').style.display = 'block';
@@ -187,15 +187,17 @@
         atualizarResumo();
     };
 
-    // Ações para os botões do Luciano e Regiane
     document.getElementById('menu-luciano').onclick = () => abrirAba('Luciano');
     document.getElementById('menu-regiane').onclick = () => abrirAba('Regiane');
 
-    async function carregarLista() {
-        const q = query(collection(db, "convidados"), where("lado", "==", ladoAtivo));
-        const snap = await getDocs(q);
-        baseDados = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        renderizar();
+    function carregarLista() {
+        db.collection("convidados").where("lado", "==", ladoAtivo).get().then((snap) => {
+            baseDados = [];
+            snap.forEach(doc => {
+                baseDados.push({ id: doc.id, ...doc.data() });
+            });
+            renderizar();
+        });
     }
 
     document.getElementById('input-busca').oninput = () => renderizar();
@@ -230,7 +232,6 @@
             if (c.maxConvidados > 1) {
                 textoBase += " e sua família";
             }
-            // Mensagem atualizada
             textoBase += " no casamento da Regiane e Luciano";
             
             const linkWa = "https://wa.me/55" + num + "?text=" + encodeURIComponent(textoBase);
@@ -271,48 +272,50 @@
         });
     }
 
-    async function salvarQuantidade(id, valor) {
+    function salvarQuantidade(id, valor) {
         let confirmados = (valor === "recusado") ? "recusado" : parseInt(valor);
-        await updateDoc(doc(db, "convidados", id), { confirmados: confirmados });
-        carregarLista();
+        db.collection("convidados").doc(id).update({ confirmados: confirmados }).then(() => {
+            carregarLista();
+        });
     }
 
-    document.getElementById('btn-salvar').onclick = async function() {
+    document.getElementById('btn-salvar').onclick = function() {
         const n = document.getElementById('novo-nome').value;
         const t = document.getElementById('novo-contato').value || "";
         const l = parseInt(document.getElementById('novo-limite').value);
         
         if(!n) return alert("Preencha ao menos o Nome do Responsável");
         
-        await addDoc(collection(db, "convidados"), { 
+        db.collection("convidados").add({ 
             nome: n, 
             telefone: t, 
             lado: ladoAtivo, 
             maxConvidados: l, 
             confirmados: 0 
+        }).then(() => {
+            document.getElementById('novo-nome').value = "";
+            document.getElementById('novo-contato').value = "";
+            document.getElementById('novo-limite').value = 1;
+            carregarLista();
         });
-        
-        document.getElementById('novo-nome').value = "";
-        document.getElementById('novo-contato').value = "";
-        document.getElementById('novo-limite').value = 1;
-        carregarLista();
     };
 
-    async function atualizarResumo() {
-        const snap = await getDocs(collection(db, "convidados"));
-        let totalPessoas = 0;
-        let confirmadosTotal = 0;
-        
-        snap.forEach(doc => {
-            const data = doc.data();
-            totalPessoas += (data.maxConvidados || 0);
-            if(data.confirmados && data.confirmados !== "recusado") {
-                confirmadosTotal += data.confirmados;
-            }
+    function atualizarResumo() {
+        db.collection("convidados").get().then((snap) => {
+            let totalPessoas = 0;
+            let confirmadosTotal = 0;
+            
+            snap.forEach(doc => {
+                const data = doc.data();
+                totalPessoas += (data.maxConvidados || 0);
+                if(data.confirmados && data.confirmados !== "recusado") {
+                    confirmadosTotal += data.confirmados;
+                }
+            });
+            
+            document.getElementById('total-geral').innerText = totalPessoas;
+            document.getElementById('conf-geral').innerText = confirmadosTotal;
         });
-        
-        document.getElementById('total-geral').innerText = totalPessoas;
-        document.getElementById('conf-geral').innerText = confirmadosTotal;
     }
 </script>
 </body>

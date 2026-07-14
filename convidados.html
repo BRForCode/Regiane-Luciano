@@ -228,11 +228,18 @@
         filtrados.sort((a,b) => a.nome.localeCompare(b.nome)).forEach(c => {
             const num = String(c.telefone || "").replace(/\D/g, '');
             
-            var textoBase = "Olá, gostaria de confirmar sua presença";
-            if (c.maxConvidados > 1) {
-                textoBase += " e sua família";
+            // --- NOVA LÓGICA DE MENSAGEM DO WHATSAPP ---
+            var textoBase = "Olá, gostaria de confirmar ";
+            var totalConvidados = c.maxConvidados || 1;
+            
+            if (totalConvidados === 1) {
+                textoBase += "sua presença no casamento da Regiane e Luciano?";
+            } else {
+                let acompanhantes = totalConvidados - 1;
+                let textoPessoas = acompanhantes === 1 ? "1 pessoa" : acompanhantes + " pessoas";
+                textoBase += "a presença de você e mais " + textoPessoas + " no casamento da Regiane e Luciano?";
             }
-            textoBase += " no casamento da Regiane e Luciano";
+            // -------------------------------------------
             
             const linkWa = "https://wa.me/55" + num + "?text=" + encodeURIComponent(textoBase);
             

@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel Administrativo - Regiane & Luciano</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    :root { 
+      /* Paleta Off-white e Tons Pastéis */
+      --cor-principal: #EAE6D7; /* Off-white / Areia suave */
+      --cor-verde: #A8C3A6;     /* Verde Pastel */
+      --cor-vermelho: #E09891;  /* Coral/Vermelho Pastel */
+      --cor-azul: #9EB9D4;      /* Azul Pastel */
+      --cor-roxo: #BCA3C4;      /* Roxo Pastel */
+      --cor-dark: #6D6861;      /* Fendi/Taupe para garantir leitura do texto */
+    }
+    
+    body { font-family: 'Montserrat', sans-serif; background-color: #FAFAFA; margin: 0; color: #333; }
+    
+    /* Login Estilo Convidados.html */
+    #bloqueio { 
+      position: fixed; top:0; left:0; width:100%; height:100%; background:#FAFAFA; 
+      z-index:9999; display: flex; align-items: center; justify-content: center; 
+    }
+    .login-card {
+      background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+      text-align: center; max-width: 350px; width: 90%;
+    }
+    .login-card i { font-size: 40px; color: var(--cor-dark); margin-bottom: 15px; }
+    .login-card input { width: 100%; padding: 12px; margin: 20px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
+    .login-card button { width: 100%; background: var(--cor-dark); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+
+    #menu-inicial { 
+      position: fixed; top:0; left:0; width:100%; height:100%; background:white; 
+      z-index: 9998; display: none; align-items: center; justify-content: center; flex-direction: column; 
+    }
+
+    .container { max-width: 900px; margin: 20px auto; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+    
+    .btn-menu { width: 280px; padding: 18px; margin: 8px; border: none; border-radius: 10px; font-size: 1rem; font-weight: 700; cursor: pointer; transition: 0.3s; color: var(--cor-dark); display: flex; align-items: center; justify-content: center; gap: 10px; }
+    .btn-p { background: var(--cor-principal); }
+    .btn-m { background: var(--cor-azul); color: white; }
+    .btn-pix-menu { background: var(--cor-roxo); color: white; }
+    .btn-conv-menu { background: var(--cor-dark); color: white; }
+    .btn-menu:hover { transform: translateY(-3px); filter: brightness(0.95); }
+
+    .secao-admin { display: none; }
+    .btn-voltar { background: #b0aba3; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; margin-bottom: 20px; font-weight: bold; }
+
+    .form-novo, .config-box, .ferramentas-convidados { background: #FAFAFA; padding: 20px; border-radius: 12px; border: 1px solid #EAE6D7; margin-bottom: 20px; }
+    .item-admin { border: 1px solid #eee; padding: 15px; border-radius: 12px; margin-bottom: 15px; background: #fff; }
+    .item-header { display: flex; align-items: center; gap: 15px; margin-bottom: 12px; }
+    .item-header img { width: 80px; height: 80px; object-fit: cover; border-radius: 8px; border: 1px solid #ddd; }
+
+    /* Dash Convidados */
+    .mini-dash-convidados { display: flex; gap: 10px; margin-bottom: 15px; }
+    .mini-card { flex: 1; background: #FAFAFA; padding: 10px; border-radius: 8px; text-align: center; border: 1px solid #eee; }
+    .mini-card span { font-size: 10px; color: #666; font-weight: bold; text-transform: uppercase; }
+    .mini-card b { display: block; font-size: 18px; color: var(--cor-dark); }
+
+    .busca-container { margin-bottom: 15px; position: relative; }
+    .busca-container i { position: absolute; left: 12px; top: 14px; color: #999; }
+    .input-busca { width: 100%; padding: 12px 12px 12px 40px; border-radius: 8px; border: 1px solid #ddd; box-sizing: border-box; }
+    
+    .filtros-lado { display: flex; gap: 10px; margin-bottom: 15px; }
+    .btn-filtro { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 8px; background: white; cursor: pointer; font-weight: bold; color: var(--cor-dark); }
+    .btn-filtro.active { background: var(--cor-dark); color: white; border-color: var(--cor-dark); }
+
+    .input-edit { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 0.95rem; }
+    .label-mini { font-size: 10px; color: #999; text-transform: uppercase; font-weight: bold; margin-bottom: 4px; display: block; }
+    
+    /* Layout Edição Convidado */
+    .guest-edit-row { display: grid; grid-template-columns: 1fr 1fr 60px 90px; gap: 8px; align-items: flex-end; }
+    .btn-del { background: var(--cor-vermelho); color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; }
+    .btn-save { background: var(--cor-azul); color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+    .btn-upload { background: var(--cor-verde); color: white; border: none; padding: 15px; border-radius: 10px; width: 100%; margin-top: 10px; font-weight: bold; cursor: pointer; }
+
+    @media (max-width: 600px) {
+        .guest-edit-row { grid-template-columns: 1fr; gap: 5px; }
+        .guest-actions-mobile { display: flex; gap: 5px; margin-top: 5px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="bloqueio">
+    <div class="login-card">
+      <i class="fas fa-lock"></i>
+      <h2>Painel Admin</h2>
+      <input type="password" id="senhaInput" placeholder="Digite a senha">
+      <button onclick="verificarSenha()">Entrar</button>
+    </div>
+  </div>
+
+  <div id="menu-inicial">
+    <h2 style="color: var(--cor-dark);">Administração</h2>
+    <button class="btn-menu btn-p" onclick="mostrarSecao('presentes')">🎁 Presentes</button>
+    <button class="btn-menu btn-m" onclick="mostrarSecao('mensagens')">📝 Mural de Mensagens</button>
+    <button class="btn-menu btn-pix-menu" onclick="mostrarSecao('pix')">💸 Chave Pix</button>
+    <button class="btn-menu btn-conv-menu" onclick="mostrarSecao('convidados')">👥 Convidados</button>
+  </div>
+
+  <div class="container">
+    <button class="btn-voltar" onclick="voltarAoMenu()">← Voltar ao Menu</button>
+
+    <div id="secao-convidados" class="secao-admin">
+      <h1 style="color: var(--cor-dark);">Gestão de Convidados</h1>
+      
+      <div class="ferramentas-convidados">
+        <h3 style="color: var(--cor-dark);">Importar Lista (JSON)</h3>
+        <input type="file" id="inputJson" accept=".json" style="display: none;" onchange="importarJson(event)">
+        <button class="btn-upload" onclick="document.getElementById('inputJson').click()">
+            <i class="fas fa-file-import"></i> Subir Arquivo JSON
+        </button>
+      </div>
+
+      <div class="mini-dash-convidados">
+        <div class="mini-card"><span>Total Convidados</span><b id="mini-total">0</b></div>
+        <div class="mini-card"><span>Confirmados</span><b id="mini-conf">0</b></div>
+      </div>
+
+      <div class="busca-container">
+        <i class="fas fa-search"></i>
+        <input type="text" id="buscaConvidado" class="input-busca" placeholder="Buscar por nome ou telefone..." oninput="filtrarConvidados()">
+      </div>
+
+      <div class="filtros-lado">
+        <button class="btn-filtro active" id="btn-lado-Todos" onclick="setFiltroLado('Todos')">Todos</button>
+        <button class="btn-filtro" id="btn-lado-Luciano" onclick="setFiltroLado('Luciano')">Luciano</button>
+        <button class="btn-filtro" id="btn-lado-Regiane" onclick="setFiltroLado('Regiane')">Regiane</button>
+      </div>
+
+      <div id="lista-convidados">Carregando...</div>
+    </div>
+
+    <div id="secao-presentes" class="secao-admin">
+      <h1 style="color: var(--cor-dark);">Gerenciar Presentes</h1>
+      <div class="form-novo">
+        <h3 style="color: var(--cor-dark);">Adicionar Novo Item</h3>
+        <input type="text" id="nomeP" placeholder="Nome" class="input-edit" style="margin-bottom: 5px;">
+        <input type="text" id="imagemP" placeholder="Link da Imagem" class="input-edit" style="margin-bottom: 5px;">
+        <input type="number" id="totalP" value="1" min="1" class="input-edit" style="margin-bottom: 5px;">
+        <button onclick="adicionarPresente()" class="btn-save" style="width:100%; background: var(--cor-verde);">Cadastrar</button>
+      </div>
+      <div id="lista-presentes">Carregando...</div>
+    </div>
+
+    <div id="secao-mensagens" class="secao-admin">
+      <h1 style="color: var(--cor-dark);">Mural de Mensagens</h1>
+      <div id="lista-mensagens">Carregando...</div>
+    </div>
+
+    <div id="secao-pix" class="secao-admin">
+      <h1 style="color: var(--cor-dark);">Chave Pix</h1>
+      <div class="config-box">
+        <input type="text" id="inputChavePix" class="input-edit">
+        <button onclick="salvarPix()" class="btn-save" style="width:100%; margin-top: 15px; background: var(--cor-roxo);">Atualizar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+  <script>
+    // IMPORTANTE: Insira aqui as chaves do NOVO projeto do Firebase para não misturar os dados!
+    var firebaseConfig = {
+      apiKey: "COLE_AQUI_A_NOVA_API_KEY",
+      authDomain: "COLE_AQUI_O_NOVO_AUTH_DOMAIN",
+      projectId: "COLE_AQUI_O_NOVO_PROJECT_ID"
+    };
+    firebase.initializeApp(firebaseConfig);
+    var db = firebase.firestore();
+
+    function verificarSenha() {
+      if (document.getElementById("senhaInput").value === "1234") {
+        document.getElementById("bloqueio").style.display = "none";
+        document.getElementById("menu-inicial").style.display = "flex";
+      } else { alert("Senha incorreta!"); }
+    }
+
+    function mostrarSecao(tipo) {
+      document.getElementById("menu-inicial").style.display = "none";
+      document.querySelectorAll('.secao-admin').forEach(s => s.style.display = "none");
+      document.getElementById("secao-" + tipo).style.display = "block";
+      if(tipo === 'pix') carregarPix();
+      if(tipo === 'convidados') carregarConvidados();
+    }
+
+    function voltarAoMenu() {
+      document.getElementById("menu-inicial").style.display = "flex";
+      document.querySelectorAll('.secao-admin').forEach(s => s.style.display = "none");
+    }
+
+    // --- CONVIDADOS ---
+    let filtroLadoAtual = 'Todos';
+    let listaLocalConvidados = [];
+
+    function carregarConvidados() {
+      db.collection("convidados").onSnapshot(snap => {
+        listaLocalConvidados = [];
+        snap.forEach(doc => { listaLocalConvidados.push({ id: doc.id, ...doc.data() }); });
+        filtrarConvidados();
+      });
+    }
+
+    function setFiltroLado(lado) {
+        filtroLadoAtual = lado;
+        document.querySelectorAll('.btn-filtro').forEach(b => b.classList.remove('active'));
+        document.getElementById('btn-lado-' + lado).classList.add('active');
+        filtrarConvidados();
+    }
+
+    function filtrarConvidados() {
+        const termo = document.getElementById("buscaConvidado").value.toLowerCase();
+        const div = document.getElementById("lista-convidados");
+        div.innerHTML = "";
+        
+        let totalPessoas = 0, confirmadosPessoas = 0;
+
+        listaLocalConvidados.filter(c => {
+            const bateLado = (filtroLadoAtual === 'Todos' || c.lado === filtroLadoAtual);
+            const bateBusca = (c.nome?.toLowerCase().includes(termo) || (c.telefone+"").includes(termo));
+            return bateLado && bateBusca;
+        }).sort((a,b) => a.nome.localeCompare(b.nome)).forEach(c => {
+            totalPessoas += (c.maxConvidados || 0);
+            if(typeof c.confirmados === 'number') confirmadosPessoas += c.confirmados;
+
+            const card = document.createElement("div");
+            card.className = "item-admin";
+            card.innerHTML = `
+                <div class="guest-edit-row">
+                    <div>
+                        <label class="label-mini">Nome do Responsável</label>
+                        <input type="text" id="nome-${c.id}" value="${c.nome}" class="input-edit">
+                    </div>
+                    <div>
+                        <label class="label-mini">Telefone / Obs</label>
+                        <input type="text" id="tel-${c.id}" value="${c.telefone || ""}" class="input-edit">
+                    </div>
+                    <div>
+                        <label class="label-mini">Limite</label>
+                        <input type="number" id="max-${c.id}" value="${c.maxConvidados || 1}" class="input-edit">
+                    </div>
+                    <div class="guest-actions-mobile">
+                        <button class="btn-save" onclick="salvarConvidado('${c.id}')"><i class="fas fa-sync"></i> Salvar</button>
+                        <button class="btn-del" onclick="excluirConvidado('${c.id}')"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>`;
+            div.appendChild(card);
+        });
+        
+        document.getElementById('mini-total').innerText = totalPessoas;
+        document.getElementById('mini-conf').innerText = confirmadosPessoas;
+    }
+
+    function salvarConvidado(id) {
+        const novoNome = document.getElementById('nome-'+id).value;
+        const novoTel = document.getElementById('tel-'+id).value;
+        const novoMax = parseInt(document.getElementById('max-'+id).value);
+        
+        db.collection("convidados").doc(id).update({ 
+            nome: novoNome,
+            telefone: novoTel,
+            maxConvidados: novoMax 
+        }).then(() => alert("Dados atualizados com sucesso!"));
+    }
+
+    function excluirConvidado(id) { if(confirm("Excluir grupo familiar?")) db.collection("convidados").doc(id).delete(); }
+
+    function importarJson(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const dados = JSON.parse(e.target.result);
+                dados.forEach(obj => {
+                    db.collection("convidados").add({
+                        nome: obj.nome, telefone: (obj.telefone+""), lado: obj.lado, 
+                        maxConvidados: parseInt(obj.maxConvidados || 1), confirmados: 0
+                    });
+                });
+                alert("Importação concluída!");
+            } catch (err) { alert("Erro no JSON."); }
+        };
+        reader.readAsText(file);
+    }
+
+    // --- PRESENTES ---
+    function adicionarPresente() {
+      var n = document.getElementById("nomeP").value, i = document.getElementById("imagemP").value, t = parseInt(document.getElementById("totalP").value);
+      if (!n || !i) return alert("Preencha!");
+      db.collection("presentes").add({ nome: n, imagem: i, total: t, recebidos: 0 }).then(() => {
+        document.getElementById("nomeP").value = ""; document.getElementById("imagemP").value = "";
+      });
+    }
+
+    db.collection("presentes").onSnapshot(snap => {
+      var div = document.getElementById("lista-presentes");
+      div.innerHTML = "";
+      snap.forEach(doc => {
+        var p = doc.data(), id = doc.id;
+        var item = document.createElement("div");
+        item.className = "item-admin";
+        item.innerHTML = `
+          <div class="item-header"><img src="${p.imagem}">
+            <div style="flex-grow:1"><label class="label-mini">Nome</label><input type="text" id="n-${id}" value="${p.nome}" class="input-edit"></div>
+          </div>
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px; margin-bottom:10px;">
+            <div><label class="label-mini">Total</label><input type="number" id="t-${id}" value="${p.total}" class="input-edit"></div>
+            <div><label class="label-mini">Ganhos</label><input type="number" id="r-${id}" value="${p.recebidos}" class="input-edit"></div>
+          </div>
+          <label class="label-mini">Link da Imagem</label>
+          <input type="text" id="i-${id}" value="${p.imagem}" class="input-edit" style="margin-bottom:10px;">
+          <button class="btn-save" style="width:75%" onclick="salvarP('${id}')">Salvar</button>
+          <button class="btn-del" style="width:20%" onclick="excluirP('${id}')"><i class="fas fa-trash"></i></button>`;
+        div.appendChild(item);
+      });
+    });
+
+    function salvarP(id) {
+      db.collection("presentes").doc(id).update({
+        nome: document.getElementById("n-"+id).value,
+        total: parseInt(document.getElementById("t-"+id).value),
+        recebidos: parseInt(document.getElementById("r-"+id).value),
+        imagem: document.getElementById("i-"+id).value
+      }).then(() => alert("Presente atualizado!"));
+    }
+    function excluirP(id) { if(confirm("Excluir?")) db.collection("presentes").doc(id).delete(); }
+
+    // --- OUTROS ---
+    db.collection("mensagens").onSnapshot(snap => {
+      var div = document.getElementById("lista-mensagens");
+      div.innerHTML = "";
+      snap.forEach(doc => {
+        var m = doc.data(), id = doc.id;
+        var card = document.createElement("div");
+        card.className = "item-admin";
+        card.innerHTML = `<input type="text" id="mt-${id}" value="${m.texto}" class="input-edit">
+          <div style="margin-top:10px">
+            <button class="btn-save" onclick="salvarM('${id}')">Salvar</button>
+            <button class="btn-del" onclick="excluirM('${id}')">Excluir</button>
+          </div>`;
+        div.appendChild(card);
+      });
+    });
+    function salvarM(id) { db.collection("mensagens").doc(id).update({ texto: document.getElementById("mt-"+id).value }).then(() => alert("Mensagem salva!")); }
+    function excluirM(id) { if(confirm("Excluir?")) db.collection("mensagens").doc(id).delete(); }
+    function carregarPix() { db.collection("config").doc("pix").get().then((doc) => { if (doc.exists) document.getElementById("inputChavePix").value = doc.data().chave; }); }
+    function salvarPix() { db.collection("config").doc("pix").set({ chave: document.getElementById("inputChavePix").value }).then(() => alert("Pix salvo!")); }
+  </script>
+</body>
+</html>

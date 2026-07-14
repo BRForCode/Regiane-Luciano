@@ -8,7 +8,7 @@
   <style>
     :root { 
       /* Paleta Off-white e Pastel */
-      --cor-principal: #BFAEA4; /* Nude/Areia Pastel (elegante para botões e títulos) */
+      --cor-principal: #BFAEA4; /* Nude/Areia Pastel */
       --cor-verde: #A8C3A6;     /* Verde Pastel */
       --cor-fundo: #FCFBF8;     /* Off-white cremoso */
       --cor-texto: #59534F;     /* Marrom acinzentado suave para o texto */
@@ -27,7 +27,9 @@
     header { text-align: center; margin-bottom: 30px; padding: 0 15px; }
     .titulo-lista { font-size: 1.1rem; color: var(--cor-principal); margin: 0; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
     .nomes-casal { font-size: 1.8rem; color: var(--cor-principal); margin: 5px 0; font-weight: 700; white-space: nowrap; display: block; }
-    .subtitulo { margin: 15px auto; color: #777; font-size: 0.95rem; max-width: 700px; line-height: 1.6; }
+    
+    /* Classe do texto de boas-vindas */
+    .subtitulo { margin: 15px auto; color: #777; font-size: 0.95rem; max-width: 700px; line-height: 1.6; white-space: pre-wrap; }
     
     /* Grid de Presentes */
     .grid-presentes { display: grid; gap: 15px; max-width: 1400px; margin: 0 auto; padding: 0 15px; }
@@ -75,7 +77,6 @@
     .btn-pix { background: var(--cor-principal); color: white; border: none; padding: 12px; border-radius: 25px; cursor: pointer; font-weight: 700; width: 100%; }
     .mural-wrapper { margin: 60px 0; position: relative; width: 100%; background: white; padding: 30px 0; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.02); border-top: 1px solid #F0ECE1; border-bottom: 1px solid #F0ECE1; }
     
-    /* Animação com fallback de 20s (será reescrito pelo JavaScript) */
     .marquee-content { display: flex; width: max-content; animation: scrollLateral 20s linear infinite; }
     .msg-item { padding: 0 50px; font-style: italic; font-size: 1.1rem; color: #777; }
     
@@ -93,7 +94,10 @@
     <header>
       <h1 class="titulo-lista">Nossa Lista de Casamento</h1>
       <span class="nomes-casal">Regiane e Luciano 💍</span>
-      <p class="subtitulo">O maior presente é a sua presença no nosso grande dia. Mas, se desejar nos presentear, criamos esta lista com itens escolhidos com amor para o nosso novo lar. Fique à vontade para escolher qualquer um dos itens ou, se preferir, nos presentear com algo de sua escolha, que será recebido com o mesmo carinho e gratidão. ❤️</p>
+      
+      <!-- O texto aqui agora tem um ID para ser atualizado pelo Firebase -->
+      <p class="subtitulo" id="texto-intro">O maior presente é a sua presença no nosso grande dia. Mas, se desejar nos presentear, criamos esta lista com itens escolhidos com amor para o nosso novo lar. Fique à vontade para escolher qualquer um dos itens ou, se preferir, nos presentear com algo de sua escolha, que será recebido com o mesmo carinho e gratidão. ❤️</p>
+    
     </header>
 
     <div class="grid-presentes" id="lista"></div>
@@ -130,6 +134,13 @@
     firebase.initializeApp(firebaseConfig);
     var db = firebase.firestore();
 
+    // --- NOVA CHAMADA: TEXTO DE BOAS-VINDAS ---
+    db.collection("config").doc("textoIntro").onSnapshot(function(doc) {
+      if (doc.exists && doc.data().texto) {
+        document.getElementById("texto-intro").innerText = doc.data().texto;
+      }
+    });
+
     db.collection("config").doc("pix").onSnapshot(function(doc) {
       if (doc.exists) document.getElementById("chave-pix").innerText = doc.data().chave;
     });
@@ -156,20 +167,15 @@
       var content = "";
       snapshot.forEach(function(doc) { content += '<div class="msg-item">"' + doc.data().texto + '"</div>'; });
       
-      // Duplicamos o conteúdo para o efeito de rolagem infinita
       track.innerHTML = content + content;
 
-      // --- NOVA LÓGICA DE VELOCIDADE INTELIGENTE ---
-      // Aguardamos um instante para o navegador renderizar os textos e saber a largura
       setTimeout(function() {
-        var distancia = track.scrollWidth / 2; // O quanto a fita anda
-        var velocidadePixelsPorSegundo = 45;   // Ajuste este número se quiser mais rápido ou mais devagar (menor = mais lento)
+        var distancia = track.scrollWidth / 2; 
+        var velocidadePixelsPorSegundo = 45;   
         var tempoNecessario = distancia / velocidadePixelsPorSegundo;
         
-        // Colocamos um tempo mínimo de 15 segundos para não ficar muito rápido se tiver só 1 mensagem
         if (tempoNecessario < 15) tempoNecessario = 15;
         
-        // Aplica o tempo exato para manter a mesma velocidade de leitura sempre
         track.style.animationDuration = tempoNecessario + "s";
       }, 200);
     });
@@ -192,7 +198,6 @@
         '</div>';
     }
 
-    // Corações agora aparecem somente quando o modal fecha
     function fecharModal() {
       document.getElementById("overlay").style.display = "none";
       document.getElementById("conteudo-principal").classList.remove("blur");

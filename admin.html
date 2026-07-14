@@ -19,14 +19,14 @@
     
     body { font-family: 'Montserrat', sans-serif; background-color: #FAFAFA; margin: 0; color: #333; }
     
-    /* Login Estilo Convidados.html */
+    /* Login */
     #bloqueio { 
       position: fixed; top:0; left:0; width:100%; height:100%; background:#FAFAFA; 
       z-index:9999; display: flex; align-items: center; justify-content: center; 
     }
     .login-card {
       background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-      text-align: center; max-width: 350px; width: 90%;
+      text-align: center; max-width: 350px; width: 90%; border: 1px solid #EAE6D7;
     }
     .login-card i { font-size: 40px; color: var(--cor-dark); margin-bottom: 15px; }
     .login-card input { width: 100%; padding: 12px; margin: 20px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
@@ -39,8 +39,9 @@
 
     .container { max-width: 900px; margin: 20px auto; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
     
-    .btn-menu { width: 280px; padding: 18px; margin: 8px; border: none; border-radius: 10px; font-size: 1rem; font-weight: 700; cursor: pointer; transition: 0.3s; color: var(--cor-dark); display: flex; align-items: center; justify-content: center; gap: 10px; }
-    .btn-p { background: var(--cor-principal); }
+    .btn-menu { width: 280px; padding: 18px; margin: 8px; border: none; border-radius: 10px; font-size: 1rem; font-weight: 700; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; }
+    .btn-intro { background: var(--cor-vermelho); color: white; }
+    .btn-p { background: var(--cor-principal); color: var(--cor-dark); }
     .btn-m { background: var(--cor-azul); color: white; }
     .btn-pix-menu { background: var(--cor-roxo); color: white; }
     .btn-conv-menu { background: var(--cor-dark); color: white; }
@@ -68,7 +69,8 @@
     .btn-filtro { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 8px; background: white; cursor: pointer; font-weight: bold; color: var(--cor-dark); }
     .btn-filtro.active { background: var(--cor-dark); color: white; border-color: var(--cor-dark); }
 
-    .input-edit { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 0.95rem; }
+    .input-edit { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 0.95rem; font-family: inherit; }
+    textarea.input-edit { resize: vertical; line-height: 1.5; }
     .label-mini { font-size: 10px; color: #999; text-transform: uppercase; font-weight: bold; margin-bottom: 4px; display: block; }
     
     /* Layout Edição Convidado */
@@ -96,6 +98,7 @@
 
   <div id="menu-inicial">
     <h2 style="color: var(--cor-dark);">Administração</h2>
+    <button class="btn-menu btn-intro" onclick="mostrarSecao('texto')">💬 Mensagem p/ Convidados</button>
     <button class="btn-menu btn-p" onclick="mostrarSecao('presentes')">🎁 Presentes</button>
     <button class="btn-menu btn-m" onclick="mostrarSecao('mensagens')">📝 Mural de Mensagens</button>
     <button class="btn-menu btn-pix-menu" onclick="mostrarSecao('pix')">💸 Chave Pix</button>
@@ -105,6 +108,17 @@
   <div class="container">
     <button class="btn-voltar" onclick="voltarAoMenu()">← Voltar ao Menu</button>
 
+    <!-- NOVA SEÇÃO: MENSAGEM DO SITE -->
+    <div id="secao-texto" class="secao-admin">
+      <h1 style="color: var(--cor-dark);">Mensagem Inicial do Site</h1>
+      <div class="config-box">
+        <label class="label-mini">Texto de boas-vindas</label>
+        <textarea id="inputTextoIntro" class="input-edit" rows="6" placeholder="Digite a mensagem que aparecerá no topo do site..."></textarea>
+        <button onclick="salvarTextoIntro()" class="btn-save" style="width:100%; margin-top: 15px; background: var(--cor-verde);">Salvar Mensagem</button>
+      </div>
+    </div>
+
+    <!-- OUTRAS SEÇÕES -->
     <div id="secao-convidados" class="secao-admin">
       <h1 style="color: var(--cor-dark);">Gestão de Convidados</h1>
       
@@ -155,6 +169,7 @@
     <div id="secao-pix" class="secao-admin">
       <h1 style="color: var(--cor-dark);">Chave Pix</h1>
       <div class="config-box">
+        <label class="label-mini">Chave PIX atual</label>
         <input type="text" id="inputChavePix" class="input-edit">
         <button onclick="salvarPix()" class="btn-save" style="width:100%; margin-top: 15px; background: var(--cor-roxo);">Atualizar</button>
       </div>
@@ -187,6 +202,8 @@
       document.getElementById("menu-inicial").style.display = "none";
       document.querySelectorAll('.secao-admin').forEach(s => s.style.display = "none");
       document.getElementById("secao-" + tipo).style.display = "block";
+      
+      if(tipo === 'texto') carregarTextoIntro();
       if(tipo === 'pix') carregarPix();
       if(tipo === 'convidados') carregarConvidados();
     }
@@ -194,6 +211,24 @@
     function voltarAoMenu() {
       document.getElementById("menu-inicial").style.display = "flex";
       document.querySelectorAll('.secao-admin').forEach(s => s.style.display = "none");
+    }
+
+    // --- TEXTO INTRODUTÓRIO DO SITE ---
+    function carregarTextoIntro() {
+      db.collection("config").doc("textoIntro").get().then((doc) => { 
+        if (doc.exists && doc.data().texto) {
+          document.getElementById("inputTextoIntro").value = doc.data().texto; 
+        } else {
+          // Texto padrão caso ainda não exista nada salvo
+          document.getElementById("inputTextoIntro").value = "O maior presente é a sua presença no nosso grande dia. Mas, se desejar nos presentear, criamos esta lista com itens escolhidos com amor para o nosso novo lar. Fique à vontade para escolher qualquer um dos itens ou, se preferir, nos presentear com algo de sua escolha, que será recebido com o mesmo carinho e gratidão. ❤️";
+        }
+      }); 
+    }
+    
+    function salvarTextoIntro() { 
+      db.collection("config").doc("textoIntro").set({ 
+        texto: document.getElementById("inputTextoIntro").value 
+      }, { merge: true }).then(() => alert("Mensagem do site salva com sucesso!")); 
     }
 
     // --- CONVIDADOS ---
@@ -351,8 +386,9 @@
     });
     function salvarM(id) { db.collection("mensagens").doc(id).update({ texto: document.getElementById("mt-"+id).value }).then(() => alert("Mensagem salva!")); }
     function excluirM(id) { if(confirm("Excluir?")) db.collection("mensagens").doc(id).delete(); }
+    
     function carregarPix() { db.collection("config").doc("pix").get().then((doc) => { if (doc.exists) document.getElementById("inputChavePix").value = doc.data().chave; }); }
-    function salvarPix() { db.collection("config").doc("pix").set({ chave: document.getElementById("inputChavePix").value }).then(() => alert("Pix salvo!")); }
+    function salvarPix() { db.collection("config").doc("pix").set({ chave: document.getElementById("inputChavePix").value }, { merge: true }).then(() => alert("Pix salvo!")); }
   </script>
 </body>
 </html>
